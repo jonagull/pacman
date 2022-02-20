@@ -31,6 +31,7 @@ const width = 28
 const grid = document.querySelector('.grid')
 const scoreDisplay = document.querySelector('#score')
 let squares = [];
+let score = 0;
 //28 * 28 = 784
   // 0 - pac-dots
   // 1 - wall
@@ -132,29 +133,96 @@ function control(e) {
 
     switch(e.keyCode) {
         case 40:
-            if (pacmanCurrentIndex + width < width * width) pacmanCurrentIndex += width
+            if (!squares[pacmanCurrentIndex + width].classList.contains('ghost-lair') && !squares[pacmanCurrentIndex + width].classList.contains('wall') && pacmanCurrentIndex + width < width * width) pacmanCurrentIndex += width
             break
         case 38:
-            if (pacmanCurrentIndex - width >= 0) pacmanCurrentIndex -= width
+            if (!squares[pacmanCurrentIndex - width].classList.contains('wall') && pacmanCurrentIndex - width >= 0) pacmanCurrentIndex -= width
             break
         case 39:
-            if (pacmanCurrentIndex % width < width - 1) pacmanCurrentIndex += 1
+            if (!squares[pacmanCurrentIndex + 1].classList.contains('wall') && pacmanCurrentIndex % width < width - 1) pacmanCurrentIndex += 1
+            if (pacmanCurrentIndex === 391) pacmanCurrentIndex = 364
             break
         case 37:
-            if (pacmanCurrentIndex % width !== 0) pacmanCurrentIndex -= 1
+            if (!squares[pacmanCurrentIndex - 1].classList.contains('wall') && pacmanCurrentIndex % width !== 0) pacmanCurrentIndex -= 1
+            if (pacmanCurrentIndex === 364) pacmanCurrentIndex = 391
             break 
     }
     squares[pacmanCurrentIndex].classList.add('pacman')
+    pacDotEaten();
+    moveGhost();
 }
-
 
 
 document.addEventListener('keyup', control) // This needs two arguments for it two work
 
+function pacDotEaten() {
+    if (squares[pacmanCurrentIndex].classList.contains('pac-dot')) {
+        squares[pacmanCurrentIndex].classList.remove('pac-dot')
+        score++
+        scoreDisplay.innerHTML = score;
+    }
+}
+
+function  powerPelletEaten() {
+    // if square pacman is in contains a power pellet 
+    if (squares[pacmanCurrentIndex].classList.contains('power-pellet')) {
+        
+    }
+    // add a score of 10
+
+    // change each of the four ghost to isScared
+
+    // use setTimeout to unscare ghosts after 10 seconds
+}
 
 
+class Ghost {
+    constructor(className, startIndex, speed) {
+        this.className = className
+        this.startIndex = startIndex
+        this.speed = speed
+        this.currentIndex = startIndex
+        this.isScared = false
+        this.timerId = NaN
+    }
+}
 
+const ghosts = [
+    new Ghost('blinky', 348, 250),
+    new Ghost('pinky', 376, 400),
+    new Ghost('inky', 351, 300),
+    new Ghost('clyde', 379, 500)
+]
 
-// for (let i = 476; i <= 490; i++) {
-//     console.log(i%28)
-// }
+ghosts.forEach(ghost => {
+    squares[ghost.currentIndex].classList.add(ghost.className)
+    squares[ghost.currentIndex].classList.add('ghost')
+})
+
+ghosts.forEach(ghost => moveGhost(ghost))
+
+function moveGhost(ghost) {
+    console.log("moved ghost")
+    const directions = [-1, +1, -width, +width]
+    let direction = directions[Math.floor(Math.random() * directions.length)]
+    console.log(direction)
+
+    ghost.timerId = setInterval(() => {
+        // remove any ghost
+        //add direction to current index
+        
+        if (!squares[ghost.currentIndex + direction].classList.contains('wall') &&
+            !squares[ghost.currentIndex + direction].classList.contains('ghost')) {
+
+            squares[ghost.currentIndex].classList.remove(ghost.className)
+            squares[ghost.currentIndex].classList.remove('ghost')
+            ghost.currentIndex += direction
+            // add ghost class
+            squares[ghost.currentIndex].classList.add(ghost.className)
+            squares[ghost.currentIndex].classList.add('ghost')
+        } else direction = directions[Math.floor(Math.random() * directions.length)]
+    }, ghost.speed)
+
+}
+
+ 
